@@ -21,36 +21,23 @@ def load_data(filepath):
 
 
 def get_biggest_bar(json_bars):
-    max_seats = 0
-    biggest_bar = None
-    for bar in json_bars['features']:
-        bar_seats = bar['properties']['Attributes']['SeatsCount']
-        if bar_seats > max_seats:
-            max_seats = bar_seats
-            biggest_bar = bar
+    bars_dict = dict(map(lambda x: (x['properties']['Attributes']['SeatsCount'], x), json_bars['features']))
+    biggest_bar = bars_dict[max(bars_dict)]
     return biggest_bar
 
 
 def get_smallest_bar(json_bars):
-    smallest_bar = json_bars['features'][0]
-    min_seats = smallest_bar['properties']['Attributes']['SeatsCount']
-    for bar in json_bars['features']:
-        bar_seats = bar['properties']['Attributes']['SeatsCount']
-        if bar_seats < min_seats:
-            min_seats = bar_seats
-            smallest_bar = bar
+    bars_dict = dict(map(lambda x: (x['properties']['Attributes']['SeatsCount'], x), json_bars['features']))
+    smallest_bar = bars_dict[min(bars_dict)]
     return smallest_bar
 
 
+
 def get_closest_bar(json_bars, longitude, latitude):
-    closest_bar =json_bars['features'][0]
-    min_distance = distance(longitude, latitude, *closest_bar['geometry']['coordinates'])
-    for bar in json_bars['features']:
-        bar_distance = distance(longitude, latitude, *bar['geometry']['coordinates'])
-        if bar_distance < min_distance:
-           min_distance = bar_distance
-           closest_bar = bar
+    bars_dict = dict(map(lambda x: (distance(longitude, latitude, *x['geometry']['coordinates']), x), json_bars['features']))
+    closest_bar = bars_dict[min(bars_dict)]
     return closest_bar
+
 
 
 if __name__ == '__main__':
