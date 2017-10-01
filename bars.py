@@ -24,35 +24,47 @@ def load_data(filepath):
 
 
 def get_biggest_bar(json_bars):
-    bars_dict = dict(map(lambda x: (x['properties']['Attributes']['SeatsCount'], x),
-                     json_bars['features']))
-
-    biggest_bar = bars_dict[max(bars_dict)]
+    biggest_bar = max(json_bars, 
+                      key=lambda x: x['properties']['Attributes']['SeatsCount'])
     return biggest_bar
 
 
 def get_smallest_bar(json_bars):
-    bars_dict = dict(map(lambda x: (x['properties']['Attributes']['SeatsCount'], x),
-                     json_bars['features']))
-    smallest_bar = bars_dict[min(bars_dict)]
+    smallest_bar = min(json_bars, 
+                       key=lambda x: x['properties']['Attributes']['SeatsCount'])
     return smallest_bar
 
 
 def get_closest_bar(json_bars, longitude, latitude):
-    bars_dict = dict(map(lambda x: (distance(longitude, latitude,
-                     *x['geometry']['coordinates']), x),
-                     json_bars['features']))
-    closest_bar = bars_dict[min(bars_dict)]
+    closest_bar = min(json_bars, key=lambda x: (distance(longitude, latitude,
+                                                *x['geometry']['coordinates'])))
     return closest_bar
 
+def format_bar_data(bar_desc, bar_json):
+    bar_info = """{desc}:
+    Бар {name}  на {seats}  мест
+    Адрес {address}, {district}
+    Координаты: {lng}, {lat}
+    """.format(desc=bar_desc,
+               name=bar_json['properties']['Attributes']['Name'],
+               seats=bar_json['properties']['Attributes']['SeatsCount'],
+               address=bar_json['properties']['Attributes']['Address'],
+               district=bar_json['properties']['Attributes']['District'],
+               lng=bar_json['geometry']['coordinates'][0],
+               lat=bar_json['geometry']['coordinates'][1]
+               )
+    return bar_info
 
 if __name__ == '__main__':
-    json_bars = load_data(sys.argv[1])
-    print("The biggest bar is %s" % json.dumps(get_biggest_bar(json_bars),
-          indent=4, ensure_ascii=False))
-    print("The smallest bar is %s" % json.dumps(get_smallest_bar(json_bars),
-          indent=4, ensure_ascii=False))
+    json_data = load_data(sys.argv[1])
+    json_bars = json_data['features']
+
+    print(format_bar_data("Самый большой бар", get_biggest_bar(json_bars)))
+
+    print(format_bar_data('Самый маленький бар', get_smallest_bar(json_bars)))
+
     longitude = float(input("input your longitude: "))
     latitude = float(input("input your latitude: "))
-    print("The closest bar: %s" % json.dumps(get_closest_bar(json_bars, longitude, latitude),
-          indent=4, ensure_ascii=False))
+
+    print(format_bar_data('Ближайший бар', get_closest_bar(json_bars,longitude, latitude)))
+
