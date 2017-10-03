@@ -1,24 +1,20 @@
 import sys
 import json
+import argparse
 from math import sin, cos, radians, sqrt, asin
 
 
-def distance(lon1, lat1, lon2, lat2):
-    """
-    Using haversine formula - https://en.wikipedia.org/wiki/Haversine_formula
-    """
-
-    radius = 6371  # km
-    dlat = radians(lat2-lat1)
-    dlon = radians(lon2-lon1)
-    hav = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * (sin(dlon/2)**2)
-    distance = 2 * radius * asin(sqrt(hav))
-
-    return distance
+def calc_distance(lon1, lat1, lon2, lat2):
+    radius_km = 6371
+    delta_lat = radians(lat2-lat1)
+    delta_long = radians(lon2-lon1)
+    hav = sin(delta_lat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * (sin(delta_long/2)**2)
+    bar_distance = 2 * radius_km * asin(sqrt(hav))
+    return bar_distance
 
 
-def load_data(filepath):
-    with open(filepath, 'r') as json_file:
+def load_data(file_path):
+    with open(file_path, 'r') as json_file:
         json_obj = json.load(json_file)
         return json_obj
 
@@ -36,14 +32,16 @@ def get_smallest_bar(json_bars):
 
 
 def get_closest_bar(json_bars, longitude, latitude):
-    closest_bar = min(json_bars, key=lambda x: (distance(longitude, latitude,
+    closest_bar = min(json_bars, key=lambda x: (calc_distance(longitude, latitude,
                                                 *x['geometry']['coordinates'])))
     return closest_bar
 
+
 def format_bar_data(bar_desc, bar_json):
     bar_info = """{desc}:
-    Бар {name}  на {seats}  мест
-    Адрес {address}, {district}
+    Бар: {name}   
+    Мест в баре: {seats}  
+    Адрес: {address}, {district}
     Координаты: {lng}, {lat}
     """.format(desc=bar_desc,
                name=bar_json['properties']['Attributes']['Name'],
@@ -55,16 +53,24 @@ def format_bar_data(bar_desc, bar_json):
                )
     return bar_info
 
+
+def get_args():
+    parser = argparse.ArgumentParser(description='The script for searching a bar.')
+    parser.add_argument('-i', '--input', help='JSON file with bars', required=True)
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    json_data = load_data(sys.argv[1])
-    json_bars = json_data['features']
+    args = get_args()
+    json_data = load_data(args.input)
+    json__bar_list = json_data['features']
 
-    print(format_bar_data("Самый большой бар", get_biggest_bar(json_bars)))
+    print(format_bar_data("Самый большой бар", get_biggest_bar(json__bar_list)))
 
-    print(format_bar_data('Самый маленький бар', get_smallest_bar(json_bars)))
+    print(format_bar_data('Самый маленький бар', get_smallest_bar(json__bar_list)))
 
-    longitude = float(input("input your longitude: "))
-    latitude = float(input("input your latitude: "))
+    in_longitude = float(input("input your longitude: "))
+    in_latitude = float(input("input your latitude: "))
 
-    print(format_bar_data('Ближайший бар', get_closest_bar(json_bars,longitude, latitude)))
+    print(format_bar_data('Ближайший бар', get_closest_bar(json__bar_list, in_longitude, in_latitude)))
 
