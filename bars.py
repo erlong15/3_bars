@@ -1,4 +1,3 @@
-import sys
 import json
 import argparse
 from math import sin, cos, radians, sqrt, asin
