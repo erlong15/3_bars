@@ -6,8 +6,8 @@ from math import sin, cos, radians, sqrt, asin
 
 def calc_distance(lon1, lat1, lon2, lat2):
     radius_km = 6371
-    delta_lat = radians(lat2-lat1)
-    delta_long = radians(lon2-lon1)
+    delta_lat = radians(lat2 - lat1)
+    delta_long = radians(lon2 - lon1)
     hav = (sin(delta_lat/2)**2 +
            cos(radians(lat1)) *
            cos(radians(lat2)) *
@@ -73,18 +73,18 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     json_data = load_data(args.input)
-    json__bar_list = json_data['features']
+    json_bar_list = json_data['features']
 
     print(format_bar_data("Самый большой бар",
-                          get_biggest_bar(json__bar_list)))
+                          get_biggest_bar(json_bar_list)))
 
     print(format_bar_data('Самый маленький бар',
-                          get_smallest_bar(json__bar_list)))
+                          get_smallest_bar(json_bar_list)))
 
     in_longitude = float(input("input your longitude: "))
     in_latitude = float(input("input your latitude: "))
 
     print(format_bar_data('Ближайший бар',
-                          get_closest_bar(json__bar_list,
+                          get_closest_bar(json_bar_list,
                                           in_longitude,
                                           in_latitude)))
